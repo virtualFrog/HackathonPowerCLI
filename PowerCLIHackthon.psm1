@@ -13,7 +13,7 @@
 
 # Module manifest for module 'PowerCLIHackathon'
 $ModuleManifest = @{
-    ModuleVersion     = '1.0d'
+    ModuleVersion     = '1.1'
     Guid              = 'e4e602be-36cd-4a16-b922-a3ff78f09e7e'
     Author            = 'Dario Doerflinger'
     CompanyName       = 'VMwareExploreHackathon2023Team6'
@@ -59,7 +59,38 @@ function Set-vSANWitnessTag {
     }
 }
 
+function Remove-vSANWitnessTag {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]$VMHostObject,
+
+        [Parameter(Mandatory = $true)]
+        [string] $vmKernelInterface
+    )
+
+    process {
+        #check for esxi version
+        #$pattern = "^(8\.0\.2|[89]\.\d+\.\d+|\d+\.\d+\.\d+)$"
+        $version = $VMHostObject.Version
+        $version = $version.Replace(".", "")
+        $versionint = [int]$version
+
+        #Write-Host "VMHost: $($VMHostObject.Name), String: $vmKernelInterface"
+        if ($versionint -ge 802) {
+            #host version is higher than 8.0.2
+            $esxiView = $VMHostObject | Get-View
+            $nicManager = Get-View -Id $esxiView.Configmanager.VirtualNicManager
+            $nicManager.DeselectVnicForNicType("vsanWitness", "$vmKernelInterface")
+        }
+        else {
+            #host version is lower than 8.0.2
+            $esxcli = Get-EsxCli -VMHost $VMHostObject -V2
+            $esxcli.network.ip.interface.tag.remove.Invoke(@{tagname = "VSANWitness"; interfacename = "$vmKernelInterface" })
+        }
+    }
+}
+
 Export-ModuleMember -Function * -Variable *
 
-# Dot-source the module manifest to export the module members
+## Dot-source the module manifest to export the module members
 $PSCmdlet.MyInvocation.MyCommand.Module.PrivateData = $ModuleManifest
