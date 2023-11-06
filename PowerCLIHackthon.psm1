@@ -1,6 +1,6 @@
 # Module manifest for module 'PowerCLIHackathon'
 $ModuleManifest = @{
-    ModuleVersion     = '1.0'
+    ModuleVersion     = '1.0d'
     Guid              = 'e4e602be-36cd-4a16-b922-a3ff78f09e7e'
     Author            = 'Dario Doerflinger'
     CompanyName       = 'VMwareExploreHackathon2023Team6'
@@ -38,16 +38,9 @@ function Set-vSANWitnessTag {
         }
         else {
             #host version is lower than 8.0.2
-            $esxcli = Get-EsxCli -VMHost $VMHostObject | Out-Null
-            Try {
-                sleep 1
-                $esxcli.network.ip.interface.tag.add($vmKernelInterface, "VSANWitness")
-                sleep 1
-                $esxcli.network.ip.interface.tag.get($vmKernelInterface) 
-            }
-            Catch {
-                Write-Warning "$($VMHostObject.Name) - could not tag interface"
-            }
+            $esxcli = Get-EsxCli -VMHost $VMHostObject -V2
+            $esxcli.network.ip.interface.tag.add.Invoke(@{tagname = "VSANWitness"; interfacename = "$vmKernelInterface" })
+
         }
 
     }
