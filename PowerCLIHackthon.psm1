@@ -1,3 +1,16 @@
+<#
+.SYNOPSIS
+    This PowerShell module provides cmdlets for setting tag vsanWitness at vmkernel interface on particular VMware ESXi host. This tag is allows to force vSAN Witness traffic to use particular vmkernel adapter.
+.DESCRIPTION
+    The PowerCLIHackathon module allows you to setup tag vsanWitness at vmkernel interface on particular VMware ESXi host using PowerShell. To use this module, you must first connect to a vCenter server using the Connect-VIServer cmdlet. Once connected, you can use the Get-VMHost cmdlet to retrieve a list of VMHosts, and then pipe the output to that cmdlet Set-vSANWitnessTag to perform setting tag on vmkernel adapter. vmkernel interface name is mandatory.
+.PARAMETER VMKernelInterface
+    Specifies the name of the VMkernel interface to use when piping to a VMHost object.
+.EXAMPLE
+    This example retrieves a particular ESXi host object and setting vmk2 interface for vSAN Witness traffic :
+    PS C:\> Connect-VIServer -Server vcenter.example.com
+    PS C:\> get-vmhost -Name labesx002.soultec.lab | Set-vSANWitnessTag -vmKernelInterface "vmk2"
+#>
+
 # Module manifest for module 'PowerCLIHackathon'
 $ModuleManifest = @{
     ModuleVersion     = '1.0d'
