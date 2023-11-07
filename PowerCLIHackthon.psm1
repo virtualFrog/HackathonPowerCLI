@@ -13,7 +13,7 @@
 
 # Module manifest for module 'PowerCLIHackathon'
 $ModuleManifest = @{
-    ModuleVersion     = '1.1'
+    ModuleVersion     = '1.2'
     Guid              = 'e4e602be-36cd-4a16-b922-a3ff78f09e7e'
     Author            = 'Dario Doerflinger'
     CompanyName       = 'VMwareExploreHackathon2023Team6'
@@ -23,7 +23,6 @@ $ModuleManifest = @{
     VariablesToExport = '*'
     CmdletsToExport   = '*'
 }
-
 # Private function to perform a specific task
 function Set-vSANWitnessTag {
     [CmdletBinding()]
@@ -40,6 +39,16 @@ function Set-vSANWitnessTag {
         $version = $VMHostObject.Version
         $version = $version.Replace(".", "")
         $versionint = [int]$version
+
+        #check if the given vmkernel exists
+        try {
+            Get-VMHostNetworkAdapter -VMkernel -Name $vmKernelInterface -ErrorAction Stop
+        }
+        catch {
+            Write-Error "Could not find VMkernel Interface on Host"
+            exit
+        }
+        
 
         #Write-Host "VMHost: $($VMHostObject.Name), String: $vmKernelInterface"
         if ($versionint -ge 802) {
@@ -74,6 +83,15 @@ function Remove-vSANWitnessTag {
         $version = $VMHostObject.Version
         $version = $version.Replace(".", "")
         $versionint = [int]$version
+
+        #check if the given vmkernel exists
+        try {
+            Get-VMHostNetworkAdapter -VMkernel -Name $vmKernelInterface -ErrorAction Stop
+        }
+        catch {
+            Write-Error "Could not find VMkernel Interface on Host"
+            exit
+        }
 
         #Write-Host "VMHost: $($VMHostObject.Name), String: $vmKernelInterface"
         if ($versionint -ge 802) {
